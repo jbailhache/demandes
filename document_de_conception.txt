@@ -184,4 +184,11 @@ Sauvegardes
 Toutes les nuits, un script lancé par crontab sauvegarde la base sur un disque dur externe et purge les anciennes sauvegardes. 
 Toutes les sauvegardes de moins de 30 jours sont conservées, ainsi que toutes les sauvegardes du premier jour du mois datant de moins de 365 jours.
 Un autre script permet de restaurer une sauvegarde.    
+- sauvegarde quotidienne ;
+- support distinct du serveur ;
+- conservation de 30 jours ;
+- sauvegarde du premier jour du mois pendant 365 jours ;
+- script de restauration.
+Le script de sauvegarde doit signaler clairement une erreur. Une sauvegarde qui échoue silencieusement n'est pas une sauvegarde.
+
     
