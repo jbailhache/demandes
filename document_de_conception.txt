@@ -102,7 +102,7 @@ On aurait alors les règles de transition suiivante
 Ancien état | Nouvel état | Evèmement              | Qui peut effectuer la transition
 ------------+-------------+------------------------+---------------------------------
             | Nouvelle    | Création d'une demande | Demandeur
-Nouvelle    | Affectée    | Affectation            | Demandeur ou administrateur
+Nouvelle    | Affectée    | Affectation            | Administrateur
 Affectée    | En cours    | Acceptation            | Utilisateur affecté
 Affectée    | Nouvelle    | Refus                  | Utilisateur affecté
 En cours    | En attente  | Traitement impossible  | Utilisateur affecté
