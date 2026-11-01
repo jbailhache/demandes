@@ -99,17 +99,18 @@ Transitions d'états des demandes
 Pour gérer la différence entre « demande affectée », « affectation acceptée » et « demande en cours », il faudrait peut-être ajouter un statut pour les demandes affectées mais non encore acceptées. Je l'appellerai "Affectée".
 On aurait alors les règles de transition suiivante
 
-Ancien état | Nouvel état | Evèmement
-------------+-------------+-----------------------
-            | Nouvelle    | Création d'une demande
-Nouvelle    | Affectée    | Affectation
-Affectée    | En cours    | Acceptation            
-Affectée    | Nouvelle    | Refus
-En cours    | En attente  | Traitement impossible
-En attente  | En cours    | Reprise
-En cours    | Résolue     | Traitement terminé
-Résolue     | Fermée      | Validation
-Résolue     | En cours    | Problème non résolu
+Ancien état | Nouvel état | Evèmement              | Qui peut effectuer la transition
+------------+-------------+------------------------+---------------------------------
+            | Nouvelle    | Création d'une demande | Demandeur
+Nouvelle    | Affectée    | Affectation            | Demandeur ou administrateur
+Affectée    | En cours    | Acceptation            | Utilisateur affecté
+Affectée    | Nouvelle    | Refus                  | Utilisateur affecté
+En cours    | En attente  | Traitement impossible  | Utilisateur affecté
+En attente  | En cours    | Reprise                | Utilisateur affecté
+En cours    | Résolue     | Traitement terminé     | Utilisateur affecté
+Résolue     | Fermée      | Validation             | Demandeur
+Résolue     | En cours    | Problème non résolu    | Demandeur
+
 
 Stratégie de gestion de l'historique :
 Pour chaque action effectuée, une ligne correspondante est insérée dans la table historique.
@@ -176,5 +177,11 @@ Technique
     • logs : enregistrer les connexions des utilisateurs et les opérations effectuées dans un fichier log de l'application
     • maintenance : garantir au client la correction des bugs ; lui proposer d'examiner toute demande d'évolution ultérieure et si je suis intéressé lui proposer un tarif pour sa réalisation.
     
-    
+Blocage des connexions
+Après 5 échecs, le compte est bloqué 15 minutes.
+
+Sauvegardes 
+Toutes les nuits, un script lancé par crontab sauvegarde la base sur un disque dur externe et purge les anciennes sauvegardes. 
+Toutes les sauvegardes de moins de 30 jours sont conservées, ainsi que toutes les sauvegardes du premier jour du mois datant de moins de 365 jours.
+Un autre script permet de restaurer une sauvegarde.    
     
