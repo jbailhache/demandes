@@ -1,0 +1,180 @@
+DOCUMENT DE CONCEPTION PRELIMINAIRE MIS A JOUR
+
+
+Choix définitif : PHP seul
+
+
+Modèle de données :
+
+utilisateur
+-----------
+id PK
+nom
+email
+mot_de_passe
+role
+actif
+
+demande
+-------
+id PK
+titre
+description
+demandeur_id FK -> utilisateur
+date_creation
+date_modification
+date_cloture
+statut_id FK -> statut
+priorite_id FK -> priorite
+affecte_a_id FK -> utilisateur
+
+statut
+------
+id PK
+libelle
+
+priorite
+---------
+id PK
+libelle
+
+commentaire
+-----------
+id PK
+demande_id FK -> demande
+utilisateur_id FK -> utilisateur
+date
+texte
+
+historique
+----------
+id PK
+date
+utilisateur_id FK -> utilisateur
+action_id FK -> action
+demande_id FK -> demande
+description
+
+action
+------
+id PK
+libelle
+
+
+Pages :
+- Connexion
+- Déconnexion
+- Tableau de bord
+- Liste des demandes avec filtres de recherche
+- Fiche d'une demande
+- Liste des utilisateurs
+- Fiche d'un utilisateur
+- Historique
+
+Remarque : dans un premier temps, je pense utiliser la même page pour la fiche d'un utilisateur existant et pour la fiche permettant de créer un nouvel utilisateur, tous les champs étant initialement vides dans ce dernier cas, et les champs étant modifiables ou pas selon l'utilisateur affiché et le rôle de l'utilisateur connecté. Si ça entrainait des difficultés, je ferais des pages différentes.
+
+
+Règles de droits entre utilisateur et administrateur :
+Utilisateur
+Il peut :
+    consulter les demandes auxquelles il a accès ;
+    créer une demande ;
+    modifier les demandes qui lui sont affectées
+    ajouter des commentaires.
+Administrateur
+Il peut en plus :
+    consulter toutes les demandes ;
+    créer, modifier ou désactiver des utilisateurs ;
+    affecter les demandes ;
+    modifier les statuts ;
+    consulter l’historique complet
+    
+Qui peut voir quelle demande ?
+- Tous les utilisateurs peuvent voir les demandes qu'ils on créées et les demandes auxquelles ils sont affectés.
+- Les administrateurs peuvent voir toutes les demandes.
+    
+    
+Transitions d'états des demandes
+    
+Pour gérer la différence entre « demande affectée », « affectation acceptée » et « demande en cours », il faudrait peut-être ajouter un statut pour les demandes affectées mais non encore acceptées. Je l'appellerai "Affectée".
+On aurait alors les règles de transition suiivante
+
+Ancien état | Nouvel état | Evèmement
+------------+-------------+-----------------------
+            | Nouvelle    | Création d'une demande
+Nouvelle    | Affectée    | Affectation
+Affectée    | En cours    | Acceptation            
+Affectée    | Nouvelle    | Refus
+En cours    | En attente  | Traitement impossible
+En attente  | En cours    | Reprise
+En cours    | Résolue     | Traitement terminé
+Résolue     | Fermée      | Validation
+Résolue     | En cours    | Problème non résolu
+
+Stratégie de gestion de l'historique :
+Pour chaque action effectuée, une ligne correspondante est insérée dans la table historique.
+Cette ligne comprend les champs suivants :
+- action : type d'évènement
+- données : ce qui a changé
+Un batch de nuit permettra de purger la table historique. Ce batch sera paramétré par le nombre de jours de conservation souhaité.
+
+
+Découpage du projet en lots :
+
+1. Analyse / conception
+       ↓
+2. Socle technique
+       ↓
+3. Authentification + utilisateurs
+       ↓
+4. Gestion des demandes
+       ↓
+5. Commentaires + historique
+       ↓
+6. Recherche + tableau de bord
+       ↓
+7. Tests / sécurité
+       ↓
+8. Documentation / installation
+       ↓
+9. Livraison
+       ↓
+10. Recette
+       ↓
+11. Corrections éventuelles
+
+
+Risques ou points à surveiller :
+
+Sécurité
+    • injection SQL : requêtes préparées 
+    • XSS : échappement à la sortie
+    • CSRF : utilisation de jetons
+    • gestion des sessions : utilisation de jetons de session
+    • mots de passe : les mots de passe sont enregistrés cryptés dans la base de données, lorsqu'un utilisateur saisit son mot de passe, celui-ci est crypté et comparé avec le mot de passe crypté enregistré en base
+    • contrôle des autorisations : sur chaque page, on vérifie que le rôle de l'utilisateur courant l'autorise bien à accéder à la page
+    • exposition des messages d'erreur : On configure le php.ini de façon à ne pas afficher à l'écran des messages d'erreurs système et on gère les cas possibles d'erreurs dans l'application de façon à afficher un message compréhensible par l'utilisateur
+    • protection contre les tentatives de connexion répétées : S'il y a plus de 3 tentatives de connexion erronées consécutives pour un utilisateur, cet utilisateur est désactivé.
+Données
+    • suppression accidentelle : demande de confirmation avant suppression
+    • cohérence des clés étrangères : déclaration avec FOREIGN KEY ... REFERENCES ...
+    • sauvegardes : batch de nuit qui crée un dump de la base de donnée chaque nuit
+    • restauration : script de restauration d'un dump passé à la demande
+    • perte de données : en cas de perte de données grave, restaurer la dernière sauvegarde
+Fonctionnel
+    • règles de transition de statut : voir ci-dessus : transitions d'état des demandes
+    • utilisateur désactivé mais encore présent dans l'historique : les utilisateurs désactivés restent présents en base mais une information indique qu'ils n'on plus le droit de se connecter
+    • demande sans utilisateur affecté : la demande est au statut Nouvelle
+    • demandeur supprimé/désactivé : la demande est passée au statut Fermée
+    • modification d'une demande fermée : une demande fermée ne peut pas âtre modifiée
+Technique
+    • configuration du serveur : un PC sous Linux avec Apache, PHP et PostgreSQL
+    • version PHP : la dernière version disponible sur la version de Linux installée
+    • dépendances : Apache, PHP, PostgreSQL et leurs dépendances respectives
+    • déploiement : Livraison d'une archive comprenant un script shell effectuant le déploiement de l'application et de ses dépendances
+    • HTTPS : demander au client si les informations gérées par l'application sont sensibles, si c'est le cas configurer le serveur web en HTTPS
+    • logs : enregistrer les connexions des utilisateurs et les opérations effectuées dans un fichier log de l'application
+    • maintenance : garantir au client la correction des bugs ; lui proposer d'examiner toute demande d'évolution ultérieure et si je suis intéressé lui proposer un tarif pour sa réalisation.
+    
+    
+    
