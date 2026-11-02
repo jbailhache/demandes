@@ -1,3 +1,4 @@
 
-CREATE DATABASE demandes;
+CREATE DATABASE demandes
+    OWNER demandes;
 
