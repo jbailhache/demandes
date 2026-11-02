@@ -1,15 +1,11 @@
 <?php
+    session_start();
     require_once("config.php");
-
-    echo "<p><pre>" . print_r($_POST, true) . "</pre></p>";
     
     $identifiant = $_POST['identifiant'];
     $mdp = $_POST['mdp'];
-    echo "<p>identifiant=$identifiant mdp=$mdp</p>";
     
     $pdo = new PDO("pgsql:host=localhost;port=5432;dbname=$db_name", $db_user, $db_pass);
-    
-    echo "<p>pdo=<pre>".print_r($pdo, true)."</pre></p>";
 
     $stmt = $pdo->prepare("
         SELECT 
@@ -19,22 +15,22 @@
         JOIN role r ON r.id = u.role
         WHERE nom = :nom AND mdp = :mdp
         ");
-    echo "<p>stmt=<pre>".print_r($stmt, true)."</pre></p>";
+
     $param = array(
         'nom' => $identifiant,
         'mdp' => md5($mdp),
     );
-    echo "<p>param=<pre>".print_r($param, true)."</pre></p>";
+    
     $stmt->execute($param);
     $res = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($res) {
-        echo "Identification correcte";
-        exit();
         session_regenerate_id();
-        $_SESSION['utilisateur'] = $res['id'];
+        $_SESSION['utilisateur'] = $res['utilisateur'];
         $_SESSION['role'] = $res['role'];
+        $message = "Identification correcte";
     } else {
-        echo "Identification incorrecte";
-        exit();
+        $message = "Identification incorrecte";
     }
+    
+    header("Location: index.php?message=$message");
     
