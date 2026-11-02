@@ -1,3 +1,19 @@
+<?php
+    session_start();
+    
+    function connecte() {
+        $res = !empty($_SESSION['utilisateur']);
+        return $res;
+    }
+    
+    if (!connecte()) {        
+        $page = 'connexion';
+    } elseif (!empty($_GET['page'])) {
+        $page = $_GET['page'];
+    } else {
+        $page = 'tdb';
+    }
+?>
 <html>
     <head>
         <title>Demandes</title>
@@ -24,8 +40,10 @@
                 </td>
                 <td>
                     <?php
-                        echo "Page: " . $_GET['page'];
-                        
+                        echo "Page: $page";
+                        if ($page == 'connexion') {
+                            require_once("connexion.php");
+                        }
                     ?>
                 </td>
             </tr>
