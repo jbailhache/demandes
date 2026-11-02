@@ -1,4 +1,4 @@
-<form method="post" action="?page=traiter_connexion">
+<form method="post" action="traitement_connexion.php">
     <table>
         <tr>
             <td>Identifiant :</td>
