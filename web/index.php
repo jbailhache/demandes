@@ -47,6 +47,8 @@
                         echo "<p>$message</p>";
                         if ($page == 'connexion') {
                             require_once("connexion.php");
+                        } elseif ($page == 'deconnexion') {
+                            require_once("deconnexion.php");
                         }
                     ?>
                 </td>
