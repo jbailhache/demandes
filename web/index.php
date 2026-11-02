@@ -14,7 +14,11 @@
         $page = 'tdb';
     }
     
-    $message = $_GET['message'];
+    if (isset($_GET['message'])) {
+        $message = $_GET['message'];
+    } else {
+        $message = "";
+    }
     
 ?>
 <html>
