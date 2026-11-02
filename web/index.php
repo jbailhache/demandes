@@ -13,6 +13,9 @@
     } else {
         $page = 'tdb';
     }
+    
+    $message = $_GET['message'];
+    
 ?>
 <html>
     <head>
@@ -40,7 +43,8 @@
                 </td>
                 <td>
                     <?php
-                        echo "Page: $page";
+                        echo "<p>Page: $page</p>";
+                        echo "<p>$message</p>";
                         if ($page == 'connexion') {
                             require_once("connexion.php");
                         }
