@@ -36,9 +36,11 @@ CREATE TABLE utilisateur (
     id SERIAL PRIMARY KEY,
     nom TEXT,
     email TEXT,
-    mot_de_passe TEXT,
+    mdp TEXT,
     role INTEGER, CONSTRAINT fk_role FOREIGN KEY (role) REFERENCES role(id)
 );
+
+INSERT INTO utilisateur (nom, mdp, role) VALUES ('admin', MD5('master'), (SELECT id FROM role WHERE code = 'A'));
 
 CREATE TABLE demande (
     id SERIAL PRIMARY KEY,
