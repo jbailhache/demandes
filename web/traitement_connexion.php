@@ -5,7 +5,7 @@
     $identifiant = $_POST['identifiant'];
     $mdp = $_POST['mdp'];
     
-    $pdo = new PDO("pgsql:host=localhost;port=5432;dbname=$db_name", $db_user, $db_pass);
+    $pdo = new PDO($db_dsn, $db_user, $db_pass);
 
     $stmt = $pdo->prepare("
         SELECT 
